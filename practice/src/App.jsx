@@ -1,6 +1,7 @@
 import React from "react";
 import "./App.css";
-import { auth } from "./Firebase/init";
+import { auth, db } from "./Firebase/init";
+import {collection, addDoc} from "firebase/firestore"
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
@@ -11,6 +12,14 @@ import {
 function App() {
   const [user, setUser] = React.useState({})
   const [loading, setLoading] = React.useState(true)
+
+  function createPost() {
+    const post = {
+      title: "Land a $400k job",
+      description: "Finish Frontend Simplified"
+    }
+    addDoc(collection(db, "posts"), post)
+  }
 
   React.useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -54,6 +63,7 @@ function App() {
       <button onClick={login}>Login</button>
       <button onClick={logout}>Logout</button>
       {loading ? 'loading...' : user.email}
+      <button onClick={createPost}>Create Post</button>
     </div>
   );
 }
