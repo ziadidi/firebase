@@ -1,7 +1,7 @@
 import React from "react";
 import "./App.css";
 import { auth, db } from "./Firebase/init";
-import {collection, addDoc} from "firebase/firestore"
+import {collection, addDoc, getDocs, getDoc, doc, query, where} from "firebase/firestore"
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
@@ -13,12 +13,40 @@ function App() {
   const [user, setUser] = React.useState({})
   const [loading, setLoading] = React.useState(true)
 
+  function updatePost() {
+    
+  }
+
   function createPost() {
     const post = {
-      title: "Land a $400k job",
-      description: "Finish Frontend Simplified"
+      title: "fincacan fun",
+      description: "quandrimodencon",
+      uid: user.uid
     }
     addDoc(collection(db, "posts"), post)
+  }
+
+  async function getAllPosts() {
+    const {docs} = await getDocs(collection(db, "posts"));
+    const posts = docs.map(elem => ({...elem.data(), id: elem.id}))
+    console.log(posts)
+  }
+
+  async function getPostById() {
+    const hardcodedId = "0kBF8XHV40j05Ki5nfzU"
+    const postRef = doc(db, "posts", hardcodedId)
+    const postSnap = await getDoc(postRef)
+    const post = postSnap.data()
+    console.log(post)
+  }
+
+  async function getPostByUid() {
+    const postCollectionRef = await query(
+      collection(db, "posts"),
+      where("uid", "==", user.uid)
+    )
+    const {docs} = await getDocs(postCollectionRef);
+    console.log(docs.map(doc => doc.data()))
   }
 
   React.useEffect(() => {
@@ -64,6 +92,8 @@ function App() {
       <button onClick={logout}>Logout</button>
       {loading ? 'loading...' : user.email}
       <button onClick={createPost}>Create Post</button>
+      <button onClick={getPostById}>Get Posts by Id</button>
+      <button onClick={getPostByUid}>Get Posts by Uid</button>
     </div>
   );
 }
